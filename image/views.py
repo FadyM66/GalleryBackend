@@ -5,7 +5,7 @@ from authentication.models import User
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from core.decorators import error_handler
-
+import logging
 
 @error_handler
 @api_view(['POST'])
@@ -44,8 +44,9 @@ def upload_image(request):
     user_id = token['user_id']
     
     # Upload the image to S3 Bucket
-    res = upload_to_s3(image)
-    if not res:
+    res, status = upload_to_s3(image)
+    if not status:
+        logging.log(f"Internal Error: {res}")
         return Response({"message": "Internal Server Error"}, status=500)
     
     try:
@@ -55,6 +56,7 @@ def upload_image(request):
         image_insertion.save()
         
     except Exception as e:
+        logging.log(f"Internal Error: {e}")
         return Response({"message": "Internal Server Error"}, status=500)
         
     return Response({"message": "Image saved successfully", "image_id": image_insertion.id}, status=200)

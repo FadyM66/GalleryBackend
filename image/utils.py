@@ -39,11 +39,11 @@ def upload_to_s3(image_file):
         )
 
         file_url = f"https://gallery-cloud-storage.s3.eu-north-1.amazonaws.com/images/{file_name}"
-        return file_url
+        return file_url, True
     
-    except:
+    except Exception as e:
         
-        return False
+        return e, False
  
 @error_handler
 def image_checker(file):
