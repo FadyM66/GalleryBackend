@@ -9,7 +9,7 @@ from PIL import Image as Img
 from django.conf import settings
 from authentication.models import User
 from jwt.exceptions import ExpiredSignatureError, InvalidTokenError
-from core.decorators import error_handler
+# from core.decorators import error_handler
 
 def s3_client():
     s3 = boto3.client(
@@ -20,7 +20,7 @@ def s3_client():
     )
     return s3
 
-@error_handler
+# @error_handler
 def upload_to_s3(image_file):
 
     s3 = s3_client()
@@ -42,10 +42,9 @@ def upload_to_s3(image_file):
         return file_url, True
     
     except Exception as e:
-        
         return e, False
  
-@error_handler
+# @error_handler
 def image_checker(file):
     try:
         img = Img.open(BytesIO(file.read()))
@@ -54,12 +53,12 @@ def image_checker(file):
     except Exception:
         return False   
     
-@error_handler
+# @error_handler
 def object_key_parser(image_url):
     object_key = '/'.join(image_url.split('/')[-2:])
     return object_key
     
-@error_handler
+# @error_handler
 def delete_from_s3(object_key):
 
     s3 = s3_client()
@@ -76,7 +75,7 @@ def delete_from_s3(object_key):
     except Exception as e:
         return {"status": False, "error": str(e)}
 
-@error_handler
+# @error_handler
 def validate_JWT(token):
     try:
         if not token:
@@ -90,7 +89,7 @@ def validate_JWT(token):
     except InvalidTokenError:
         return {"valid": False, "error": "Invalid token"}
 
-@error_handler
+# @error_handler
 def generate_caption(image_url):
     
     img = requests.get(image_url).content
@@ -103,7 +102,7 @@ def generate_caption(image_url):
     
     return caption
 
-@error_handler
+# @error_handler
 def ownership_validation(user_id, image_id):
 
     
