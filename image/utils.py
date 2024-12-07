@@ -9,18 +9,22 @@ from PIL import Image as Img
 from django.conf import settings
 from authentication.models import User
 from jwt.exceptions import ExpiredSignatureError, InvalidTokenError
+from core.decorators import error_handler
 
+def s3_client():
+    s3 = boto3.client(
+        's3',
+        aws_access_key_id = config('AWS_ACCESS_KEY_ID'),
+        aws_secret_access_key = config('AWS_SECRET_ACCESS_KEY'),
+        region_name = config('AWS_S3_REGION_NAME')
+    )
+    return s3
 
-s3 = boto3.client(
-    's3',
-    aws_access_key_id = config('AWS_ACCESS_KEY_ID'),
-    aws_secret_access_key = config('AWS_SECRET_ACCESS_KEY'),
-    region_name = config('AWS_S3_REGION_NAME')
-)
-
-
+@error_handler
 def upload_to_s3(image_file):
 
+    s3 = s3_client()
+    
     new_id = uuid.uuid1()
     file_name = str(new_id) + '.' + str(image_file.name).split('.')[-1]
     key = f"images/{file_name}"    
@@ -41,7 +45,7 @@ def upload_to_s3(image_file):
         
         return False
  
- 
+@error_handler
 def image_checker(file):
     try:
         img = Img.open(BytesIO(file.read()))
@@ -50,14 +54,16 @@ def image_checker(file):
     except Exception:
         return False   
     
-    
+@error_handler
 def object_key_parser(image_url):
     object_key = '/'.join(image_url.split('/')[-2:])
     return object_key
     
-    
+@error_handler
 def delete_from_s3(object_key):
 
+    s3 = s3_client()
+    
     try:
 
         response = s3.delete_object(
@@ -70,7 +76,7 @@ def delete_from_s3(object_key):
     except Exception as e:
         return {"status": False, "error": str(e)}
 
-
+@error_handler
 def validate_JWT(token):
     try:
         if not token:
@@ -84,7 +90,7 @@ def validate_JWT(token):
     except InvalidTokenError:
         return {"valid": False, "error": "Invalid token"}
 
-
+@error_handler
 def generate_caption(image_url):
     
     img = requests.get(image_url).content
@@ -97,7 +103,7 @@ def generate_caption(image_url):
     
     return caption
 
-
+@error_handler
 def ownership_validation(user_id, image_id):
 
     

@@ -4,12 +4,14 @@ from rest_framework.response import Response
 from image.utils import validate_JWT
 from .models import User
 from .utils import *
+from core.decorators import error_handler
 
 """
 API Views for User Registration, OTP Verification, and Login.
 """
 
 # Registration View
+@error_handler
 @api_view(['POST'])
 def register(request):
     """
@@ -62,6 +64,7 @@ def register(request):
 
 
 # OTP Verification View
+@error_handler
 @api_view(['POST'])
 def verify_otp(request):
     """
@@ -110,6 +113,7 @@ def verify_otp(request):
 
 
 # Login View
+@error_handler
 @api_view(['POST'])
 def login(request):
     """

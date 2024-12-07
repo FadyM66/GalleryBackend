@@ -7,8 +7,9 @@ from django.contrib.auth.hashers import make_password
 import random
 import jwt
 import re
+from core.decorators import error_handler
 
-
+@error_handler
 def JWT_generator(**kwargs):
 
         payload = {key: value for key, value in kwargs.items()}
@@ -20,7 +21,7 @@ def JWT_generator(**kwargs):
 
         return token
     
-    
+@error_handler
 def send_email(to_email, subject, message):
     mail = Mail(
         from_email = settings.DEFAULT_FROM_EMAIL,
@@ -38,19 +39,19 @@ def send_email(to_email, subject, message):
         print(f"Sending email error: {e}")
         return False
     
-    
+@error_handler    
 def code_generator(email):
     code = str(random.randint(100000, 999999))
     cache_key = f'verification_code_{email}' 
     cache.set(cache_key, code, timeout=300)
     return code
 
-
+@error_handler
 def otp_ckecker(otp, email):
     cached_otp = cache.get(f'verification_code_{email}')
     return otp == cached_otp
 
-
+@error_handler
 def validate_username(username):
     """
     Validates a username to ensure it is:
@@ -66,18 +67,18 @@ def validate_username(username):
     
     return True, "Valid username"
 
-
+@error_handler
 def validate_email(email):
     email_regex = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
     if not email or not re.match(email_regex, email):
         return False, "Invalid email format"
     return True, "Valid email"
 
-
+@error_handler
 def encrypt_password(password):
     return make_password(password)
 
-
+@error_handler
 def validate_password(password):
     """
     Validates a password to ensure it meets the following criteria:

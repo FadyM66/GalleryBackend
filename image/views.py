@@ -4,7 +4,10 @@ from .models import Image
 from authentication.models import User
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
+from core.decorators import error_handler
 
+
+@error_handler
 @api_view(['POST'])
 def upload_image(request):
     """
@@ -57,6 +60,7 @@ def upload_image(request):
     return Response({"message": "Image saved successfully", "image_id": image_insertion.id}, status=200)
 
 
+@error_handler
 @api_view(['GET'])
 def get_images(request):
     """
@@ -86,6 +90,7 @@ def get_images(request):
         return Response({"message": "Internal Server Error"}, status=500)
 
 
+@error_handler
 @api_view(['POST'])
 def caption_generator(request):
     """
@@ -127,6 +132,7 @@ def caption_generator(request):
         return Response({"message": "Internal Server Error"}, status=500)
 
 
+@error_handler
 @api_view(['POST'])
 def update_description(request):
     """
@@ -175,6 +181,7 @@ def update_description(request):
         return Response({"message": "Internal Server Error"}, status=500)
 
 
+@error_handler
 @api_view(['GET'])
 def single_image(request, image_id):
     """
@@ -205,6 +212,7 @@ def single_image(request, image_id):
         return Response({"message": "Internal Server Error"}, status=500)
 
 
+@error_handler
 @api_view(["POST"])
 def delete_image(request):
     """
