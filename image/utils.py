@@ -87,26 +87,15 @@ def validate_JWT(token):
 
 
 def generate_caption(image_url):
-
-    processor = BlipProcessor.from_pretrained("Salesforce/blip-image-captioning-base")
-    model = BlipForConditionalGeneration.from_pretrained("Salesforce/blip-image-captioning-base")
     
-    try:
-        captionImage = requests.get(image_url)
-        if captionImage.status_code != 200:
-            return False
-    except:
-        return False
-    print("url: ", image_url)
-
-    image_to_cap = Img.open(BytesIO(captionImage.content)).convert("RGB")
-
-    inputs = processor(image_to_cap, return_tensors="pt")
-    try:
-        outputs = model.generate(**inputs, max_new_tokens=50, num_beams=5, early_stopping=True)
-    except:
-        return False
-    caption = processor.decode(outputs[0], skip_special_tokens=True)
+    img = requests.get(image_url).content
+    img_bytes = BytesIO(img).getvalue()
+    
+    API_URL = "https://api-inference.huggingface.co/models/Salesforce/blip-image-captioning-large"
+    headers = {"Authorization": f"Bearer {config('HUGGING_KEY')}"}
+    
+    caption = requests.post(API_URL, headers=headers, data=img_bytes).json()[0]['generated_text']
+    
     return caption
 
 
@@ -129,3 +118,5 @@ def ownership_validation(user_id, image_id):
     
     except Exception as e:
         return {"valid": False, "message": "Internal Server Error--", "status": 500}
+    
+    
