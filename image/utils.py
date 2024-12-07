@@ -9,7 +9,6 @@ from PIL import Image as Img
 from django.conf import settings
 from authentication.models import User
 from jwt.exceptions import ExpiredSignatureError, InvalidTokenError
-from transformers import BlipProcessor, BlipForConditionalGeneration 
 
 
 s3 = boto3.client(
