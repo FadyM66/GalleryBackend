@@ -1,34 +1,22 @@
 import logging
 import inspect
-import asyncio
+import linecache
 from functools import wraps
 
 logger = logging.getLogger('django')
 
 def error_handler(func):
     @wraps(func)
-    async def async_wrapper(*args, **kwargs):
-        try:
-            return await func(*args, **kwargs)
-        except Exception as e:
-            frame = e.__traceback__.tb_frame
-            line_number = e.__traceback__.tb_lineno
-            line_of_code = inspect.getsource(frame).strip()
-            logger.error(f"Error occurred in {func.__name__} at line {line_number}: {line_of_code} - {e}", exc_info=True)
-            return {"errorMessage": str(e)}
-    
-    @wraps(func)
-    def sync_wrapper(*args, **kwargs):
+    def wrapper(*args, **kwargs):
         try:
             return func(*args, **kwargs)
         except Exception as e:
-            frame = e.__traceback__.tb_frame
-            line_number = e.__traceback__.tb_lineno
-            line_of_code = inspect.getsource(frame).strip()
-            logger.error(f"Error occurred in {func.__name__} at line {line_number}: {line_of_code} - {e}", exc_info=True)
-            return {"errorMessage": str(e)}
+            frame = inspect.currentframe().f_back
+            line_number = frame.f_lineno
+            code_line = linecache.getline(frame.f_code.co_filename, line_number).strip()
 
-    if asyncio.iscoroutinefunction(func):
-        return async_wrapper
-    else:
-        return sync_wrapper
+            logger.error(f"Error: {e}, occurred at line {line_number} - {code_line}")
+
+            print(f"Error: {e}, occurred at line {line_number} - {code_line}")
+            return None
+    return wrapper

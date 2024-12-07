@@ -154,22 +154,43 @@ SECRET_KEY_JWT = config('SECRET_KEY_JWT')
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {
+            "format": "{levelname} {asctime} {module} {message}",
+            "style": "{",
+        },
+        "simple": {
+            "format": "{levelname} {message}",
+            "style": "{",
+        },
+    },
     "handlers": {
         "console": {
-            "level": "DEBUG",
+            "level": "ERROR",  
             "class": "logging.StreamHandler",
-        },
-        "file": {
-            "level": "ERROR",
-            "class": "logging.FileHandler",
-            "filename": "errors.log",
+            "formatter": "verbose",
         },
     },
     "loggers": {
         "django": {
-            "handlers": ["console", "file"],
-            "level": "ERROR",
+            "handlers": ["console"],
+            "level": "ERROR",  
             "propagate": True,
+        },
+        "django.db.backends": {
+            "handlers": ["console"],
+            "level": "ERROR",  
+            "propagate": False,
+        },
+        "django.request": {
+            "handlers": ["console"],
+            "level": "ERROR",  
+            "propagate": False,
+        },
+        "django.security": {
+            "handlers": ["console"],
+            "level": "ERROR",  
+            "propagate": False,
         },
     },
 }
